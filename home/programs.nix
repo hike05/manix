@@ -18,7 +18,7 @@
       merge.tool = "vscode";
 
       # GitHub CLI integration
-      credential.helper = "osxkeychain";
+      credential = { helper = "osxkeychain"; };
     };
 
     aliases = {

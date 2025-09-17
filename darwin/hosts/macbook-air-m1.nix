@@ -53,7 +53,7 @@
     casks = [
       # Essential productivity only
       "visual-studio-code" # Lightweight editor
-      "1password" # Security essential
+      "1password" # Password manager essential
 
       # Basic utilities
       "the-unarchiver" # Archive utility

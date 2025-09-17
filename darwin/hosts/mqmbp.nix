@@ -79,7 +79,7 @@
       "postman" # API testing
 
       # Productivity
-      "1password"
+      "1password" # Password manager
       "notion"
       "obsidian"
 

@@ -108,6 +108,20 @@
             nil
           ];
         };
+
+        x86_64-linux.default = nixpkgs.legacyPackages.x86_64-linux.mkShell {
+          buildInputs = with nixpkgs.legacyPackages.x86_64-linux; [
+            nixfmt-rfc-style
+            nil
+          ];
+        };
+      };
+
+      # Formatters for different architectures
+      formatter = {
+        aarch64-darwin = nixpkgs.legacyPackages.aarch64-darwin.nixfmt-rfc-style;
+        x86_64-darwin = nixpkgs.legacyPackages.x86_64-darwin.nixfmt-rfc-style;
+        x86_64-linux = nixpkgs.legacyPackages.x86_64-linux.nixfmt-rfc-style;
       };
     };
 }
