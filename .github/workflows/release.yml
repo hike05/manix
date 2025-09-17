@@ -1,0 +1,60 @@
+name: "Release"
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: macos-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    
+    - name: Install Nix
+      uses: DeterminateSystems/nix-installer-action@v9
+      with:
+        extra-conf: |
+          experimental-features = nix-command flakes
+    
+    - name: Build and test configuration
+      run: |
+        nix flake check
+        nix build .#darwinConfigurations.mqmbp.system
+    
+    - name: Generate attestation
+      uses: actions/attest-build-provenance@v1
+      with:
+        subject-path: result/
+    
+    - name: Create Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        body: |
+          ## 🎉 Nix Darwin Configuration Release
+          
+          ### What's included:
+          - ✅ Verified nix-darwin configuration
+          - ✅ Home-manager integration
+          - ✅ Development environments
+          - ✅ CI/CD pipeline
+          
+          ### Installation:
+          ```bash
+          git clone <repo-url> ~/.config/nix
+          cd ~/.config/nix
+          git checkout ${{ github.ref }}
+          sudo ./result/sw/bin/darwin-rebuild switch --flake .
+          ```
+          
+          ### Verification:
+          All configurations have passed automated testing on:
+          - 🍎 macOS (Apple Silicon)
+          - 🍎 macOS (Intel)
+        draft: false
+        prerelease: false

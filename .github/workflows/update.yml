@@ -1,0 +1,57 @@
+name: "Update Flake Inputs"
+
+on:
+  schedule:
+    - cron: '0 0 * * 1'  # Weekly on Mondays
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: macos-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Install Nix
+      uses: DeterminateSystems/nix-installer-action@v9
+      with:
+        extra-conf: |
+          experimental-features = nix-command flakes
+    
+    - name: Update flake inputs
+      run: |
+        nix flake update
+    
+    - name: Check updated configuration
+      run: |
+        nix flake check
+        nix build .#darwinConfigurations.mqmbp.system
+    
+    - name: Create Pull Request
+      uses: peter-evans/create-pull-request@v5
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        branch: update-flake-inputs
+        title: "chore: update flake inputs"
+        body: |
+          ## 🔄 Automated Flake Input Update
+          
+          This PR updates all flake inputs to their latest versions.
+          
+          ### Changed inputs:
+          ```
+          $(git diff HEAD~1 flake.lock | grep -E '^\+.*"' || echo "No input changes detected")
+          ```
+          
+          ### Verification:
+          - ✅ `nix flake check` passed
+          - ✅ Darwin configuration builds successfully
+          
+          🤖 This PR was created automatically by GitHub Actions.
+        commit-message: |
+          chore: update flake inputs
+          
+          🤖 Generated with GitHub Actions
+        delete-branch: true

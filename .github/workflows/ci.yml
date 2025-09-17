@@ -1,0 +1,89 @@
+name: "CI"
+
+on:
+  pull_request:
+    paths: 
+      - '**.nix'
+      - 'flake.lock'
+      - '.github/workflows/**'
+  push:
+    branches: [main]
+
+jobs:
+  check:
+    strategy:
+      matrix:
+        system: 
+          - aarch64-darwin
+          - x86_64-darwin
+    runs-on: ${{ matrix.system == 'aarch64-darwin' && 'macos-14' || 'macos-13' }}
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    
+    - name: Install Nix
+      uses: DeterminateSystems/nix-installer-action@v9
+      with:
+        extra-conf: |
+          experimental-features = nix-command flakes
+    
+    - name: Setup Binary Cache
+      uses: DeterminateSystems/magic-nix-cache-action@v3
+    
+    - name: Check flake
+      run: nix flake check --all-systems
+    
+    - name: Build darwin configuration
+      run: nix build .#darwinConfigurations.mqmbp.system
+    
+    - name: Test dry-run activation
+      run: |
+        result/sw/bin/darwin-rebuild check --flake .
+
+  format-check:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    
+    - name: Install Nix
+      uses: DeterminateSystems/nix-installer-action@v9
+    
+    - name: Format check
+      run: |
+        nix fmt
+        git diff --exit-code || (echo "❌ Code not formatted. Run 'nix fmt' locally." && exit 1)
+
+  security-check:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    
+    - name: Check for secrets
+      run: |
+        if grep -r "password\|secret\|key\|token" --include="*.nix" . | grep -v "# TODO\|example\|placeholder"; then
+          echo "❌ Potential secrets found!"
+          exit 1
+        fi
+        echo "✅ No secrets detected"
+
+  devenv-test:
+    runs-on: macos-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    
+    - name: Install Nix
+      uses: DeterminateSystems/nix-installer-action@v9
+      with:
+        extra-conf: |
+          experimental-features = nix-command flakes
+    
+    - name: Test development environments
+      run: |
+        cd development/templates/nodejs
+        nix flake check
+        cd ../python  
+        nix flake check
