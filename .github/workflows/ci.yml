@@ -35,7 +35,7 @@ jobs:
       run: nix flake check --all-systems
     
     - name: Build darwin configuration
-      run: nix build .#darwinConfigurations.mqmbp.system
+      run: nix build .#darwinConfigurations.default.system
     
     - name: Test dry-run activation
       run: |
