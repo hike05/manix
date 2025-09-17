@@ -12,7 +12,7 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Configuration
-REPO_URL="${REPO_URL:-https://github.com/yourusername/nix-darwin-config.git}"
+REPO_URL="${REPO_URL:-https://github.com/hike05/manix.git}"
 CONFIG_DIR="$HOME/.config/nix"
 BACKUP_DIR="$HOME/nix-install-backup-$(date +%Y%m%d-%H%M%S)"
 
