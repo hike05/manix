@@ -9,16 +9,16 @@
 
     # Conservative auto-update for cross-platform compatibility
     onActivation = {
-      autoUpdate = false;  # Manual control for servers
-      upgrade = false;     # Manual control for servers
-      cleanup = "uninstall";  # Less aggressive cleanup
+      autoUpdate = false; # Manual control for servers
+      upgrade = false; # Manual control for servers
+      cleanup = "uninstall"; # Less aggressive cleanup
     };
 
     # Essential CLI tools only - no GUI applications
     brews = [
       # Essential development tools
-      "mise"              # Runtime version management (cross-platform)
-      "direnv"            # Environment management (essential for dev)
+      "mise" # Runtime version management (cross-platform)
+      "direnv" # Environment management (essential for dev)
     ];
 
     # No GUI applications in default configuration

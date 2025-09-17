@@ -1,5 +1,10 @@
 # Host-specific configuration for mqmbp (Maxime's MacBook Pro)
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 {
   # Host-specific system packages
@@ -49,20 +54,20 @@
     # Formulae (CLI tools)
     brews = [
       # Development tools
-      "mise"              # Runtime version management
-      "direnv"            # Environment management
+      "mise" # Runtime version management
+      "direnv" # Environment management
 
       # Networking & Security
-      "wireshark"         # Network analysis
-      "nmap"              # Network mapping
+      "wireshark" # Network analysis
+      "nmap" # Network mapping
 
       # Database tools
-      "postgresql@14"     # PostgreSQL
-      "redis"             # Redis server
+      "postgresql@14" # PostgreSQL
+      "redis" # Redis server
 
       # System utilities
-      "mas"               # Mac App Store CLI
-      "btop"              # System monitor
+      "mas" # Mac App Store CLI
+      "btop" # System monitor
     ];
 
     # Casks (GUI applications)
@@ -70,8 +75,8 @@
       # Development
       "visual-studio-code"
       "docker"
-      "tableplus"         # Database client
-      "postman"           # API testing
+      "tableplus" # Database client
+      "postman" # API testing
 
       # Productivity
       "1password"
@@ -84,9 +89,9 @@
       "zoom"
 
       # Utilities
-      "raycast"           # Spotlight replacement
-      "cleanmymac"        # System cleaner
-      "the-unarchiver"    # Archive utility
+      "raycast" # Spotlight replacement
+      "cleanmymac" # System cleaner
+      "the-unarchiver" # Archive utility
 
       # Media
       "vlc"

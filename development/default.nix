@@ -11,7 +11,13 @@
     devenv.url = "github:cachix/devenv";
   };
 
-  outputs = { self, nixpkgs, devenv, ... } @ inputs:
+  outputs =
+    {
+      self,
+      nixpkgs,
+      devenv,
+      ...
+    }@inputs:
     let
       system = "aarch64-darwin";
       pkgs = nixpkgs.legacyPackages.${system};
@@ -129,15 +135,15 @@
               nodejs_20
               nodePackages.npm
               nodePackages.pnpm
-              
+
               # Backend
               python3
               python3Packages.pip
-              
+
               # Database
               postgresql
               redis
-              
+
               # Tools
               docker-compose
               curl
@@ -146,7 +152,7 @@
 
             services.postgres = {
               enable = true;
-              initialDatabases = [{ name = "dev"; }];
+              initialDatabases = [ { name = "dev"; } ];
             };
 
             services.redis.enable = true;

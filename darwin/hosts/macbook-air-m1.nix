@@ -1,5 +1,10 @@
 # Host-specific configuration for macbook-air-m1 (Generic MacBook Air M1)
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 {
   # Lightweight packages for MacBook Air
@@ -47,16 +52,16 @@
     # Minimal essential applications
     casks = [
       # Essential productivity only
-      "visual-studio-code"  # Lightweight editor
-      "1password"           # Security essential
+      "visual-studio-code" # Lightweight editor
+      "1password" # Security essential
 
       # Basic utilities
-      "the-unarchiver"      # Archive utility
+      "the-unarchiver" # Archive utility
     ];
 
     # Essential CLI tools
     brews = [
-      "direnv"              # Environment management
+      "direnv" # Environment management
     ];
 
     # No heavy applications or Mac App Store apps

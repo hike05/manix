@@ -1,4 +1,11 @@
-{ config, pkgs, inputs, hostname ? "default", username ? "maxime", ... }:
+{
+  config,
+  pkgs,
+  inputs,
+  hostname ? "default",
+  username ? "maxime",
+  ...
+}:
 
 {
   imports = [
@@ -24,7 +31,7 @@
   nix.settings = {
     experimental-features = "nix-command flakes";
   };
-  
+
   # Use auto-optimise through nix.optimise instead of nix.settings
   nix.optimise.automatic = true;
 
