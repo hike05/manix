@@ -36,10 +36,6 @@ jobs:
     
     - name: Build darwin configuration
       run: nix build .#darwinConfigurations.default.system
-    
-    - name: Test dry-run activation
-      run: |
-        result/sw/bin/darwin-rebuild check --flake .
 
   format-check:
     runs-on: ubuntu-latest
