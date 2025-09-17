@@ -18,7 +18,7 @@
     in
     {
       # Node.js development environment
-      devShells.${system}.nodejs = devenv.lib.mkShell {
+      devShells."${system}".nodejs = devenv.lib.mkShell {
         inherit inputs pkgs;
         modules = [
           {
@@ -45,7 +45,7 @@
       };
 
       # Python development environment
-      devShells.${system}.python = devenv.lib.mkShell {
+      devShells."${system}".python = devenv.lib.mkShell {
         inherit inputs pkgs;
         modules = [
           {
@@ -70,7 +70,7 @@
       };
 
       # Go development environment
-      devShells.${system}.go = devenv.lib.mkShell {
+      devShells."${system}".go = devenv.lib.mkShell {
         inherit inputs pkgs;
         modules = [
           {
@@ -94,7 +94,7 @@
       };
 
       # Rust development environment
-      devShells.${system}.rust = devenv.lib.mkShell {
+      devShells."${system}".rust = devenv.lib.mkShell {
         inherit inputs pkgs;
         modules = [
           {
@@ -120,7 +120,7 @@
       };
 
       # Full-stack development environment
-      devShells.${system}.fullstack = devenv.lib.mkShell {
+      devShells."${system}".fullstack = devenv.lib.mkShell {
         inherit inputs pkgs;
         modules = [
           {

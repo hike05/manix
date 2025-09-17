@@ -41,7 +41,14 @@ update:
 	@if [ -d ~/.config/nix ]; then \
 		cd ~/.config/nix && \
 		nix flake update && \
-		darwin-rebuild switch --flake .; \
+		HOSTNAME=$$(scutil --get LocalHostName 2>/dev/null || scutil --get ComputerName 2>/dev/null || echo "default"); \
+		echo "Using configuration for hostname: $$HOSTNAME"; \
+		if darwin-rebuild switch --flake .#$$HOSTNAME 2>/dev/null; then \
+			echo "✅ System updated for hostname: $$HOSTNAME"; \
+		else \
+			echo "⚠️ Failed to build for hostname '$$HOSTNAME', trying default"; \
+			darwin-rebuild switch --flake .#default; \
+		fi; \
 	else \
 		echo "❌ Nix configuration not found. Please install first."; \
 		exit 1; \
@@ -52,7 +59,14 @@ rebuild:
 	@echo "🔨 Rebuilding system..."
 	@if [ -d ~/.config/nix ]; then \
 		cd ~/.config/nix && \
-		darwin-rebuild switch --flake .; \
+		HOSTNAME=$$(scutil --get LocalHostName 2>/dev/null || scutil --get ComputerName 2>/dev/null || echo "default"); \
+		echo "Using configuration for hostname: $$HOSTNAME"; \
+		if darwin-rebuild switch --flake .#$$HOSTNAME 2>/dev/null; then \
+			echo "✅ System rebuilt for hostname: $$HOSTNAME"; \
+		else \
+			echo "⚠️ Failed to build for hostname '$$HOSTNAME', trying default"; \
+			darwin-rebuild switch --flake .#default; \
+		fi; \
 	else \
 		echo "❌ Nix configuration not found. Please install first."; \
 		exit 1; \

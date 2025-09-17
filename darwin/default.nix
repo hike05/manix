@@ -1,21 +1,21 @@
-{ config, pkgs, ... }:
+{ config, pkgs, inputs, hostname ? "default", username ? "maxime", ... }:
 
 {
   imports = [
     ./homebrew.nix
   ];
 
-  # List packages installed in system profile
+  # Minimal packages for cross-platform compatibility (servers + workstations)
   environment.systemPackages = with pkgs; [
-    # Essential system utilities
+    # Essential system utilities (lightweight, server-friendly)
     curl
     wget
     git
     vim
     tree
     htop
-    
-    # Development tools
+
+    # Basic Nix tools
     nixfmt-rfc-style
     nil
   ];
@@ -34,8 +34,8 @@
   # Set Git commit hash for darwin-version
   system.configurationRevision = null;
 
-  # Set primary user for homebrew and system defaults
-  system.primaryUser = "maxime";
+  # Primary user for homebrew and system defaults (handled by flake.nix)
+  # system.primaryUser is set dynamically in flake.nix based on username parameter
 
   # Used for backwards compatibility, please read the changelog before changing
   # $ darwin-rebuild changelog
@@ -51,9 +51,6 @@
     NSGlobalDomain.AppleInterfaceStyle = "Dark";
   };
 
-  # User configuration
-  users.users.maxime = {
-    name = "maxime";
-    home = "/Users/maxime";
-  };
+  # User configuration (handled by flake.nix)
+  # users.users configuration is set dynamically in flake.nix based on username parameter
 }

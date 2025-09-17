@@ -214,13 +214,25 @@ install_nix_darwin() {
     # Ensure flake.lock is tracked
     git add flake.lock 2>/dev/null || true
     
-    # Build the configuration
-    nix build .#darwinConfigurations.$(scutil --get LocalHostName).system
+    # Get hostname and try to build for it, fallback to default
+    local hostname
+    hostname=$(scutil --get LocalHostName 2>/dev/null || scutil --get ComputerName 2>/dev/null || echo "default")
+    
+    log "Detected hostname: $hostname"
+    
+    # Try to build for detected hostname, fallback to default
+    if nix build .#darwinConfigurations.${hostname}.system 2>/dev/null; then
+        log "Using configuration for hostname: $hostname"
+    else
+        warning "No configuration found for hostname '$hostname', using default"
+        hostname="default"
+        nix build .#darwinConfigurations.default.system
+    fi
     
     log "Activating nix-darwin configuration..."
     log "You may be prompted for your password for system-level changes."
     
-    sudo ./result/sw/bin/darwin-rebuild switch --flake .
+    sudo ./result/sw/bin/darwin-rebuild switch --flake .#${hostname}
     
     success "nix-darwin installation and activation completed"
 }
@@ -268,8 +280,14 @@ verify_installation() {
     fi
     
     # Check if nix-darwin is properly configured
-    if sudo darwin-rebuild check --flake "$CONFIG_DIR" >/dev/null 2>&1; then
-        success "nix-darwin configuration is valid"
+    local check_hostname
+    check_hostname=$(scutil --get LocalHostName 2>/dev/null || scutil --get ComputerName 2>/dev/null || echo "default")
+    
+    # Try the detected hostname first, then fallback to default
+    if sudo darwin-rebuild check --flake "$CONFIG_DIR#$check_hostname" >/dev/null 2>&1; then
+        success "nix-darwin configuration is valid for hostname: $check_hostname"
+    elif sudo darwin-rebuild check --flake "$CONFIG_DIR#default" >/dev/null 2>&1; then
+        success "nix-darwin configuration is valid (using default)"
     else
         warning "nix-darwin configuration check failed"
     fi

@@ -56,9 +56,9 @@
       gl = "git pull";
       
       # System shortcuts
-      ..= "cd ..";
-      ...= "cd ../..";
-      ....= "cd ../../..";
+      ".." = "cd ..";
+      "..." = "cd ../..";
+      "...." = "cd ../../..";
       
       # Nix shortcuts
       nix-search = "nix search nixpkgs";
@@ -70,7 +70,7 @@
       k = "kubectl";
     };
     
-    initExtra = ''
+    initContent = ''
       # Custom prompt (if not using oh-my-zsh)
       autoload -U colors && colors
       PS1="%{$fg[cyan]%}%n@%m%{$reset_color%}:%{$fg[blue]%}%~%{$reset_color%}$ "
@@ -174,12 +174,14 @@
   # SSH configuration
   programs.ssh = {
     enable = true;
+    enableDefaultConfig = false;
     
-    extraConfig = ''
-      Host *
-        AddKeysToAgent yes
-        UseKeychain yes
-        IdentityFile ~/.ssh/id_ed25519
-    '';
+    matchBlocks."*" = {
+      addKeysToAgent = "yes";
+      identityFile = "~/.ssh/id_ed25519";
+      extraOptions = {
+        UseKeychain = "yes";
+      };
+    };
   };
 }

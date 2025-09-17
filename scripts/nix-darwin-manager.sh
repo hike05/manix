@@ -169,8 +169,18 @@ update_config() {
     echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         log "Rebuilding system..."
-        darwin-rebuild switch --flake .
-        success "System rebuilt"
+        # Detect hostname and build for it
+        local hostname
+        hostname=$(scutil --get LocalHostName 2>/dev/null || scutil --get ComputerName 2>/dev/null || echo "default")
+        log "Using configuration for hostname: $hostname"
+        
+        if darwin-rebuild switch --flake .#${hostname} 2>/dev/null; then
+            success "System rebuilt for hostname: $hostname"
+        else
+            warning "Failed to build for hostname '$hostname', trying default"
+            darwin-rebuild switch --flake .#default
+            success "System rebuilt using default configuration"
+        fi
     fi
     
     echo
@@ -194,8 +204,18 @@ rebuild_system() {
         success "Configuration is valid"
         echo
         log "Rebuilding system..."
-        darwin-rebuild switch --flake .
-        success "System rebuild completed"
+        # Detect hostname and build for it
+        local hostname
+        hostname=$(scutil --get LocalHostName 2>/dev/null || scutil --get ComputerName 2>/dev/null || echo "default")
+        log "Using configuration for hostname: $hostname"
+        
+        if darwin-rebuild switch --flake .#${hostname} 2>/dev/null; then
+            success "System rebuild completed for hostname: $hostname"
+        else
+            warning "Failed to build for hostname '$hostname', trying default"
+            darwin-rebuild switch --flake .#default
+            success "System rebuild completed using default configuration"
+        fi
     else
         error "Configuration check failed"
     fi

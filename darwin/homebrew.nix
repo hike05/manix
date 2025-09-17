@@ -1,73 +1,33 @@
+# Minimal Homebrew configuration for cross-platform compatibility
+# This configuration includes only essential CLI tools that are useful
+# across different environments including servers and minimal setups
 { ... }:
 
 {
   homebrew = {
     enable = true;
-    
-    # Auto-update and cleanup
+
+    # Conservative auto-update for cross-platform compatibility
     onActivation = {
-      autoUpdate = true;
-      upgrade = true;
-      cleanup = "zap";
+      autoUpdate = false;  # Manual control for servers
+      upgrade = false;     # Manual control for servers
+      cleanup = "uninstall";  # Less aggressive cleanup
     };
 
-    # Formulae (CLI tools)
+    # Essential CLI tools only - no GUI applications
     brews = [
-      # Development tools
-      "mise"              # Runtime version management
-      "direnv"            # Environment management
-      
-      # Networking & Security
-      "wireshark"         # Network analysis
-      "nmap"              # Network mapping
-      
-      # Database tools
-      "postgresql@14"     # PostgreSQL
-      "redis"             # Redis server
-      
-      # System utilities
-      "mas"               # Mac App Store CLI
-      "btop"              # System monitor
+      # Essential development tools
+      "mise"              # Runtime version management (cross-platform)
+      "direnv"            # Environment management (essential for dev)
     ];
 
-    # Casks (GUI applications)
-    casks = [
-      # Development
-      "visual-studio-code"
-      "docker"
-      "tableplus"         # Database client
-      "postman"           # API testing
-      
-      # Productivity
-      "1password"
-      "notion"
-      "obsidian"
-      
-      # Communication
-      "telegram"
-      "discord"
-      "zoom"
-      
-      # Utilities
-      "raycast"           # Spotlight replacement
-      "cleanmymac"        # System cleaner
-      "the-unarchiver"    # Archive utility
-      
-      # Media
-      "vlc"
-      "spotify"
-    ];
+    # No GUI applications in default configuration
+    casks = [ ];
 
-    # Mac App Store apps
-    masApps = {
-      "Xcode" = 497799835;
-      "TestFlight" = 899247664;
-    };
+    # No Mac App Store apps in default configuration
+    masApps = { };
 
-    # Taps (third-party repositories)
-    taps = [
-      "homebrew/cask-fonts"
-      "homebrew/cask-versions"
-    ];
+    # Minimal taps - only what's needed for the essential tools
+    taps = [ ];
   };
 }
