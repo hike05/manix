@@ -15,17 +15,19 @@
     }@inputs:
     let
       system = "aarch64-darwin";
+      pkgs = nixpkgs.legacyPackages.${system};
     in
     {
       devShells.${system}.default = devenv.lib.mkShell {
-        inherit inputs;
+        inherit inputs pkgs;
         modules = [
           {
-            packages = with nixpkgs.legacyPackages.${system}; [
+            devenv.root = toString ./.;
+            packages = with pkgs; [
               python3
               python3Packages.pip
               python3Packages.virtualenv
-              python3Packages.poetry
+              poetry
             ];
 
             scripts.venv.exec = ''

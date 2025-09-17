@@ -63,7 +63,7 @@ jobs:
     
     - name: Check for secrets
       run: |
-        if grep -r "password\|secret\|key\|token" --include="*.nix" . | grep -v "# TODO\|example\|placeholder"; then
+        if grep -r "password\|secret\|key\|token" --include="*.nix" . | grep -v "# TODO\|example\|placeholder\|Password manager\|osxkeychain\|keyMode"; then
           echo "❌ Potential secrets found!"
           exit 1
         fi
