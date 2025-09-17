@@ -13,28 +13,40 @@ A modern, declarative macOS configuration using Nix, nix-darwin, and home-manage
 
 ## 🚀 Quick Start
 
-### Initial Installation
+### One-Command Installation
 
 ```bash
-# 1. Complete the nix-darwin activation (if not done):
-cd ~/.config/nix
-sudo ./result/sw/bin/darwin-rebuild switch --flake .
+# Fresh macOS system installation:
+make install
 
-# 2. Restart terminal and apply configuration:
-darwin-rebuild switch --flake ~/.config/nix
+# Or using the script directly:
+./scripts/install.sh
+```
+
+### Interactive Management
+
+```bash
+# Launch the interactive manager:
+make manager
+
+# Or run directly:
+./scripts/nix-darwin-manager.sh
 ```
 
 ### Daily Usage
 
 ```bash
-# Update system and home configuration
-rebuild
+# Quick commands via Makefile:
+make update     # Update flake inputs and rebuild
+make rebuild    # Rebuild system configuration  
+make backup     # Create system backup
+make check      # Check system compatibility
+make status     # Show current status
 
-# Update all flake inputs
-nix flake update && rebuild
-
-# Check configuration health
-nix flake check
+# Traditional commands:
+rebuild         # Rebuild system (alias)
+nix-update      # Update and rebuild (alias)
+nix-check       # Check configuration (alias)
 ```
 
 ## 📁 Structure
