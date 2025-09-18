@@ -21,6 +21,7 @@
     vim
     tree
     htop
+    gh
 
     # Basic Nix tools
     nixfmt-rfc-style

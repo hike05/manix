@@ -38,6 +38,7 @@
               home-manager.useGlobalPkgs = true;
               home-manager.useUserPackages = true;
               home-manager.users.${username} = import ./home/default.nix;
+              home-manager.backupFileExtension = "backup";
             }
             # Pass hostname and username to modules
             {

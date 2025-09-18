@@ -14,6 +14,7 @@
     kubectl
     terraform
     awscli2
+    claude-code
   ];
 
   # Host-specific macOS defaults

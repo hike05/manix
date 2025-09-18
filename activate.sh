@@ -32,7 +32,9 @@ echo "You will be prompted for your password for system-level changes."
 echo
 
 # Activate the configuration
-sudo ./result/sw/bin/darwin-rebuild switch --flake .#mqmbp
+
+
+
 
 echo
 echo -e "${GREEN}🎉 Activation completed!${NC}"
