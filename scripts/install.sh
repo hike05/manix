@@ -58,12 +58,13 @@ check_macos_version() {
 # Check available disk space
 check_disk_space() {
     local available_gb
-    available_gb=$(df -H / | awk 'NR==2 {print int($4/1000000000)}')
-    
+    # Используем df -k для получения значения в килобайтах, затем переводим в гигабайты
+    available_gb=$(df -k / | awk 'NR==2 {print int($4/1024/1024)}')
+
     if [[ $available_gb -lt 15 ]]; then
         error "At least 15GB of free space is required. Available: ${available_gb}GB"
     fi
-    
+
     success "Disk space check passed: ${available_gb}GB available"
 }
 
@@ -214,26 +215,91 @@ install_nix_darwin() {
     # Ensure flake.lock is tracked
     git add flake.lock 2>/dev/null || true
     
-    # Get hostname and try to build for it, fallback to default
-    local hostname
-    hostname=$(scutil --get LocalHostName 2>/dev/null || scutil --get ComputerName 2>/dev/null || echo "default")
-    
-    log "Detected hostname: $hostname"
-    
-    # Try to build for detected hostname, fallback to default
-    if nix build .#darwinConfigurations.${hostname}.system 2>/dev/null; then
-        log "Using configuration for hostname: $hostname"
+    # Get hostname and allow user to select config
+    local detected_hostname
+    detected_hostname=$(scutil --get LocalHostName 2>/dev/null || scutil --get ComputerName 2>/dev/null || echo "default")
+    log "Detected hostname: $detected_hostname"
+
+    # List available configs
+    local configs
+    configs=$(nix flake show --json 2>/dev/null | jq -r '.darwinConfigurations | keys[]' 2>/dev/null || nix eval --json .#darwinConfigurations --apply builtins.attrNames 2>/dev/null | jq -r '.[]' || echo "default")
+
+    echo
+    echo "Available configurations:"
+    local i=1
+    local config_array=()
+
+    # Check if detected hostname has a configuration
+    local has_detected_config=false
+    for cfg in $configs; do
+        echo "  $i) $cfg"
+        config_array+=("$cfg")
+        if [[ "$cfg" == "$detected_hostname" ]]; then
+            has_detected_config=true
+            echo "     └─ (matches detected hostname)"
+        fi
+        ((i++))
+    done
+
+    echo
+    if [[ $has_detected_config == true ]]; then
+        echo "🎯 Detected hostname '$detected_hostname' has a matching configuration."
+        read -p "Use detected configuration '$detected_hostname'? (Y/n): " -n 1 -r
+        echo
+        if [[ ! $REPLY =~ ^[Nn]$ ]]; then
+            hostname="$detected_hostname"
+        else
+            echo
+            read -p "Select configuration number [1-$((i-1))]: " choice
+            if [[ "$choice" =~ ^[0-9]+$ ]] && (( choice >= 1 && choice <= ${#config_array[@]} )); then
+                hostname="${config_array[$((choice-1))]}"
+            else
+                warning "Invalid selection, using default"
+                hostname="default"
+            fi
+        fi
     else
-        warning "No configuration found for hostname '$hostname', using default"
-        hostname="default"
-        nix build .#darwinConfigurations.default.system
+        warning "No configuration found for detected hostname '$detected_hostname'"
+        echo
+        read -p "Select configuration number [1-$((i-1))] or press Enter for 'default': " choice
+
+        if [[ -z "$choice" ]]; then
+            hostname="default"
+        elif [[ "$choice" =~ ^[0-9]+$ ]] && (( choice >= 1 && choice <= ${#config_array[@]} )); then
+            hostname="${config_array[$((choice-1))]}"
+        else
+            warning "Invalid selection, using default"
+            hostname="default"
+        fi
     fi
-    
+
+    echo
+    log "Selected configuration: $hostname"
+
+    # Try to build for selected hostname
+    if nix build .#darwinConfigurations.${hostname}.system; then
+        log "✅ Configuration '$hostname' built successfully"
+    else
+        error "❌ Failed to build configuration '$hostname'"
+        if [[ "$hostname" != "default" ]]; then
+            warning "Trying fallback to 'default' configuration..."
+            if nix build .#darwinConfigurations.default.system; then
+                hostname="default"
+                log "✅ Fallback to 'default' configuration successful"
+            else
+                error "❌ Failed to build any configuration"
+                exit 1
+            fi
+        else
+            exit 1
+        fi
+    fi
+
     log "Activating nix-darwin configuration..."
     log "You may be prompted for your password for system-level changes."
-    
+
     sudo ./result/sw/bin/darwin-rebuild switch --flake .#${hostname}
-    
+
     success "nix-darwin installation and activation completed"
 }
 

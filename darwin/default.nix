@@ -27,12 +27,12 @@
     nil
   ];
 
-  # Nix settings
+  # Nix settings - using Determinate Nix, so we configure but don't manage
   nix.settings = {
     experimental-features = "nix-command flakes";
   };
 
-  # Use auto-optimise through nix.optimise instead of nix.settings
+  # Use nix.optimise.automatic instead of auto-optimise-store
   nix.optimise.automatic = true;
 
   # Create /etc/zshrc that loads the nix-darwin environment

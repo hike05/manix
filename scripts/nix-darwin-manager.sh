@@ -36,6 +36,64 @@ title() {
     echo -e "${CYAN}$1${NC}"
 }
 
+# Configuration selection function
+select_configuration() {
+    local context="${1:-rebuild}"
+    local detected_hostname
+    detected_hostname=$(scutil --get LocalHostName 2>/dev/null || scutil --get ComputerName 2>/dev/null || echo "default")
+
+    # List available configs
+    local configs
+    configs=$(nix flake show --json 2>/dev/null | jq -r '.darwinConfigurations | keys[]' 2>/dev/null || nix eval --json .#darwinConfigurations --apply builtins.attrNames 2>/dev/null | jq -r '.[]' || echo "default")
+
+    echo
+    echo "🔧 Configuration Selection"
+    echo "========================="
+    echo "Available configurations:"
+
+    local i=1
+    local config_array=()
+    local has_detected_config=false
+
+    for cfg in $configs; do
+        echo "  $i) $cfg"
+        config_array+=("$cfg")
+        if [[ "$cfg" == "$detected_hostname" ]]; then
+            has_detected_config=true
+            echo "     └─ (matches detected hostname)"
+        fi
+        ((i++))
+    done
+
+    echo
+    if [[ $has_detected_config == true ]]; then
+        echo "🎯 Detected hostname '$detected_hostname' has a matching configuration."
+        read -p "Use detected configuration '$detected_hostname'? (Y/n): " -n 1 -r
+        echo
+        if [[ ! $REPLY =~ ^[Nn]$ ]]; then
+            echo "$detected_hostname"
+            return 0
+        fi
+    else
+        warning "No configuration found for detected hostname '$detected_hostname'"
+    fi
+
+    echo
+    read -p "Select configuration number [1-$((i-1))] or press Enter for 'default': " choice
+
+    local hostname
+    if [[ -z "$choice" ]]; then
+        hostname="default"
+    elif [[ "$choice" =~ ^[0-9]+$ ]] && (( choice >= 1 && choice <= ${#config_array[@]} )); then
+        hostname="${config_array[$((choice-1))]}"
+    else
+        warning "Invalid selection, using default"
+        hostname="default"
+    fi
+
+    echo "$hostname"
+}
+
 # Show main menu
 show_menu() {
     clear
@@ -169,17 +227,15 @@ update_config() {
     echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         log "Rebuilding system..."
-        # Detect hostname and build for it
+        # Detect hostname and allow selection
         local hostname
-        hostname=$(scutil --get LocalHostName 2>/dev/null || scutil --get ComputerName 2>/dev/null || echo "default")
-        log "Using configuration for hostname: $hostname"
-        
-        if darwin-rebuild switch --flake .#${hostname} 2>/dev/null; then
-            success "System rebuilt for hostname: $hostname"
+        hostname=$(select_configuration "update")
+
+        log "Rebuilding with configuration: $hostname"
+        if darwin-rebuild switch --flake .#${hostname}; then
+            success "System rebuilt with configuration: $hostname"
         else
-            warning "Failed to build for hostname '$hostname', trying default"
-            darwin-rebuild switch --flake .#default
-            success "System rebuilt using default configuration"
+            error "Failed to rebuild system"
         fi
     fi
     
@@ -204,17 +260,15 @@ rebuild_system() {
         success "Configuration is valid"
         echo
         log "Rebuilding system..."
-        # Detect hostname and build for it
+        # Detect hostname and allow selection
         local hostname
-        hostname=$(scutil --get LocalHostName 2>/dev/null || scutil --get ComputerName 2>/dev/null || echo "default")
-        log "Using configuration for hostname: $hostname"
-        
-        if darwin-rebuild switch --flake .#${hostname} 2>/dev/null; then
-            success "System rebuild completed for hostname: $hostname"
+        hostname=$(select_configuration "rebuild")
+
+        log "Rebuilding system with configuration: $hostname"
+        if darwin-rebuild switch --flake .#${hostname}; then
+            success "System rebuild completed with configuration: $hostname"
         else
-            warning "Failed to build for hostname '$hostname', trying default"
-            darwin-rebuild switch --flake .#default
-            success "System rebuild completed using default configuration"
+            error "System rebuild failed"
         fi
     else
         error "Configuration check failed"

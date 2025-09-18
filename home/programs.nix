@@ -5,7 +5,7 @@
   programs.git = {
     enable = true;
     userName = "Maxime";
-    userEmail = "user@example.com"; # TODO: Replace with actual email
+    userEmail = "maxime@example.com";
 
     extraConfig = {
       init.defaultBranch = "main";
