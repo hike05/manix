@@ -12,6 +12,14 @@
     ./homebrew.nix
   ];
 
+  # Enable automatic Homebrew installation
+  system.activationScripts.homebrew.text = ''
+    if ! command -v brew &> /dev/null; then
+      echo "Installing Homebrew..."
+      /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    fi
+  '';
+
   # Minimal packages for cross-platform compatibility (servers + workstations)
   environment.systemPackages = with pkgs; [
     # Essential system utilities (lightweight, server-friendly)

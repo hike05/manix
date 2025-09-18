@@ -14,6 +14,10 @@
       cleanup = "uninstall"; # Less aggressive cleanup
     };
 
+    # Auto-install Homebrew if not present
+    brewPrefix = "/opt/homebrew";
+    caskArgs.require_sha = true;
+
     # Essential CLI tools only - no GUI applications
     brews = [
       # Essential development tools
